@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Xander Home | Barbería en San Ramón</title>
+  <meta name="description" content="Xander Home, barbería en San Ramón, Santiago. Cortes, barba y cejas con Anderson Muñoz. Reserva tu hora online.">
+  <meta name="theme-color" content="#0e0e0e">
+  <meta property="og:title" content="Xander Home | Barbería en San Ramón">
+  <meta property="og:description" content="Cortes, barba y cejas. Reserva tu hora online.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💈</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BarberShop",
+    "name": "Xander Home",
+    "telephone": "+56978801968",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Augusto D'halmar 1962",
+      "addressLocality": "San Ramón",
+      "addressRegion": "Región Metropolitana",
+      "addressCountry": "CL"
+    },
+    "openingHoursSpecification": [
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "11:00", "closes": "20:00" },
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "10:00", "closes": "20:00" }
+    ],
+    "priceRange": "$10.000 - $22.000"
+  }
+  </script>
+</head>
+<body>
+
+  <header class="header" id="top">
+    <div class="container header__inner">
+      <a href="#top" class="logo">XANDER<span>HOME</span></a>
+      <nav class="nav" id="nav">
+        <a href="#servicios">Servicios</a>
+        <a href="#barbero">Barbero</a>
+        <a href="#galeria">Galería</a>
+        <a href="#ubicacion">Ubicación</a>
+      </nav>
+      <div class="header__actions">
+        <a class="btn btn--light btn--sm" data-book href="#">Reservar</a>
+        <button class="menu-btn" id="menuBtn" aria-label="Abrir menú" aria-expanded="false">
+          <span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Portada -->
+    <section class="hero">
+      <div class="hero__bg" aria-hidden="true"></div>
+      <div class="container hero__content">
+        <p class="eyebrow"><span class="status-dot" id="statusDot"></span><span id="statusText">Barbería en San Ramón</span></p>
+        <h1>Tu estilo,<br>en buenas manos.</h1>
+        <p class="hero__lead">Cortes, barba y cejas con Anderson Muñoz. Reserva tu hora en segundos.</p>
+        <div class="hero__cta">
+          <a class="btn btn--light" data-book href="#">Reservar hora</a>
+          <a class="btn btn--ghost" data-wa href="#" target="_blank" rel="noopener">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.7.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4C2.7 15.6 2.2 13.8 2.2 12 2.2 6.6 6.6 2.2 12 2.2c2.6 0 5.1 1 6.9 2.9 1.8 1.8 2.9 4.3 2.9 6.9 0 5.4-4.4 9.8-9.8 9.8zm8.4-18.2C18.1 1.3 15.2.1 12 .1 5.5.1.1 5.5.1 12c0 2.1.5 4.1 1.6 5.9L0 24l6.3-1.7c1.7.9 3.7 1.4 5.7 1.4 6.5 0 11.9-5.3 11.9-11.9 0-3.2-1.2-6.2-3.5-8.2z"/></svg>
+            WhatsApp
+          </a>
+        </div>
+        <ul class="hero__facts">
+          <li><strong>5</strong> servicios</li>
+          <li><strong>Lun–Sáb</strong> atención</li>
+          <li><strong>San Ramón</strong> Santiago</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Servicios -->
+    <section class="section" id="servicios">
+      <div class="container">
+        <div class="section__head">
+          <p class="eyebrow">Servicios</p>
+          <h2>Elige tu servicio</h2>
+        </div>
+        <div class="services" id="services"></div>
+      </div>
+    </section>
+
+    <!-- Barbero -->
+    <section class="section section--alt" id="barbero">
+      <div class="container barber">
+        <div class="barber__photo" role="img" aria-label="Foto de Anderson Muñoz">
+          <span class="barber__initials">AM</span>
+        </div>
+        <div class="barber__info">
+          <p class="eyebrow">Tu barbero</p>
+          <h2 id="barberName">Anderson Muñoz</h2>
+          <p class="barber__bio" id="barberBio"></p>
+          <ul class="tags" id="barberTags"></ul>
+          <div class="barber__cta">
+            <a class="btn btn--light" data-book href="#">Reservar con Anderson</a>
+            <a class="btn btn--ghost" id="igLink" href="#" target="_blank" rel="noopener" hidden>Instagram</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Galería -->
+    <section class="section" id="galeria">
+      <div class="container">
+        <div class="section__head">
+          <p class="eyebrow">Galería</p>
+          <h2>Trabajos recientes</h2>
+        </div>
+        <div class="gallery" id="gallery"></div>
+      </div>
+    </section>
+
+    <!-- Horario y ubicación -->
+    <section class="section section--alt" id="ubicacion">
+      <div class="container location">
+        <div class="card location__info">
+          <p class="eyebrow">Horario</p>
+          <h2>Cuándo atendemos</h2>
+          <table class="hours" id="hours"></table>
+          <div class="location__address">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.3 7 13 7 13s7-7.7 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+            <div>
+              <strong id="address"></strong>
+              <span id="commune"></span>
+            </div>
+          </div>
+          <div class="location__cta">
+            <a class="btn btn--light btn--sm" id="mapsLink" href="#" target="_blank" rel="noopener">Cómo llegar</a>
+            <a class="btn btn--ghost btn--sm" id="wazeLink" href="#" target="_blank" rel="noopener">Waze</a>
+            <a class="btn btn--ghost btn--sm" id="phoneLink" href="#">Llamar</a>
+          </div>
+        </div>
+        <div class="map">
+          <iframe id="mapFrame" title="Mapa de Xander Home" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA final -->
+    <section class="section cta">
+      <div class="container cta__inner">
+        <h2>¿Listo para tu próximo corte?</h2>
+        <p>Elige el día y la hora que te acomode.</p>
+        <a class="btn btn--light" data-book href="#">Reservar hora</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <a href="#top" class="logo">XANDER<span>HOME</span></a>
+      <p class="footer__meta"><span id="footerAddress"></span> · <a id="footerPhone" href="#"></a></p>
+      <p class="footer__copy">© <span id="year"></span> Xander Home</p>
+    </div>
+  </footer>
+
+  <!-- WhatsApp flotante -->
+  <a class="wa-float" data-wa href="#" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.7.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4C2.7 15.6 2.2 13.8 2.2 12 2.2 6.6 6.6 2.2 12 2.2c2.6 0 5.1 1 6.9 2.9 1.8 1.8 2.9 4.3 2.9 6.9 0 5.4-4.4 9.8-9.8 9.8zm8.4-18.2C18.1 1.3 15.2.1 12 .1 5.5.1.1 5.5.1 12c0 2.1.5 4.1 1.6 5.9L0 24l6.3-1.7c1.7.9 3.7 1.4 5.7 1.4 6.5 0 11.9-5.3 11.9-11.9 0-3.2-1.2-6.2-3.5-8.2z"/></svg>
+  </a>
+
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
