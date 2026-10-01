@@ -20,12 +20,12 @@ window.SITE = {
   // 0 = domingo ... 6 = sábado. null = cerrado.
   hours: {
     0: null,
-    1: ["11:00", "20:00"],
-    2: ["11:00", "20:00"],
-    3: ["11:00", "20:00"],
-    4: ["11:00", "20:00"],
-    5: ["11:00", "20:00"],
-    6: ["10:00", "20:00"],
+    1: ["Por definir"],
+    2: ["Por definir"],
+    3: ["Por definir"],
+    4: ["Por definir"],
+    5: ["Por definir"],
+    6: ["Por definir"],
   },
   services: [
     { name: "Corte de Cabello", duration: 45, price: 12000 },

@@ -53,18 +53,24 @@
     return { day, minutes: parseInt(get("hour"), 10) * 60 + parseInt(get("minute"), 10) };
   }
   const toMin = (hhmm) => { const [h, m] = hhmm.split(":").map(Number); return h * 60 + m; };
+  // Un día tiene horario válido si es ["11:00", "20:00"]; cualquier otro texto = por confirmar
+  const isTime = (t) => /^\d{1,2}:\d{2}$/.test(t);
+  const validHours = (h) => Array.isArray(h) && h.length === 2 && isTime(h[0]) && isTime(h[1]);
+  const hoursFor = (d) => (validHours(S.hours[d]) ? S.hours[d] : null);
 
   const now = nowInTz();
 
   // Tabla de horario (lunes primero)
   $("#hours").innerHTML = [1, 2, 3, 4, 5, 6, 0].map((d) => {
     const h = S.hours[d];
-    return `<tr class="${d === now.day ? "is-today" : ""}"><td>${DAYS[d]}</td><td>${h ? `${h[0]} – ${h[1]}` : "Cerrado"}</td></tr>`;
+    const label = !h ? "Cerrado" : validHours(h) ? `${h[0]} – ${h[1]}` : "Por confirmar";
+    return `<tr class="${d === now.day ? "is-today" : ""}"><td>${DAYS[d]}</td><td>${label}</td></tr>`;
   }).join("");
 
   // Estado abierto / cerrado
   function status() {
-    const today = S.hours[now.day];
+    if (![0, 1, 2, 3, 4, 5, 6].some(hoursFor)) return { open: null, text: "Horario por confirmar" };
+    const today = hoursFor(now.day);
     if (today && now.minutes >= toMin(today[0]) && now.minutes < toMin(today[1])) {
       return { open: true, text: `Abierto ahora · cierra a las ${today[1]}` };
     }
@@ -72,14 +78,14 @@
       return { open: false, text: `Cerrado · abre hoy a las ${today[0]}` };
     }
     for (let i = 1; i <= 7; i++) {
-      const d = (now.day + i) % 7, h = S.hours[d];
+      const d = (now.day + i) % 7, h = hoursFor(d);
       if (h) return { open: false, text: `Cerrado · abre ${i === 1 ? "mañana" : "el " + DAYS[d].toLowerCase()} a las ${h[0]}` };
     }
     return { open: false, text: "Cerrado" };
   }
   const st = status();
   $("#statusText").textContent = st.text;
-  $("#statusDot").classList.add(st.open ? "is-open" : "is-closed");
+  if (st.open !== null) $("#statusDot").classList.add(st.open ? "is-open" : "is-closed");
 
   // Ubicación
   const fullAddress = `${S.address}, ${S.commune}`;

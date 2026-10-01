@@ -137,8 +137,9 @@ h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; }
   position: relative; aspect-ratio: 4 / 5; border-radius: var(--radius);
   border: 1px solid var(--border); overflow: hidden;
   display: grid; place-items: center;
-  background: url("../img/barbero.jpg") center / cover no-repeat, linear-gradient(160deg, #262626, #151515);
+  background: linear-gradient(160deg, #262626, #151515);
 }
+.barber__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .barber__initials { font-size: 5rem; font-weight: 800; color: #2f2f2f; letter-spacing: .05em; }
 .barber__bio { color: #c4c4c4; font-size: 1.05rem; margin: 20px 0 24px; max-width: 52ch; }
 .tags { list-style: none; padding: 0; margin: 0 0 32px; display: flex; flex-wrap: wrap; gap: 8px; }
