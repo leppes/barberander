@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel | Xander Home</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0e0e0e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Xander Panel">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💈</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <span class="logo">XANDER<span>PANEL</span></span>
+      <button class="btn btn--ghost btn--sm" id="logoutBtn" hidden>Salir</button>
+    </div>
+  </header>
+
+  <main class="booking container">
+    <div class="notice notice--error" id="fatal" hidden></div>
+
+    <!-- Login -->
+    <section class="step" id="login" hidden>
+      <h1 class="booking__title">Hola 👋</h1>
+      <p class="booking__lead">Entra para ver tu agenda.</p>
+      <form class="form" id="loginForm">
+        <label class="field">
+          <span>Usuario</span>
+          <input name="user" type="text" autocomplete="username" autocapitalize="none" required placeholder="anderson">
+        </label>
+        <label class="field">
+          <span>Clave</span>
+          <input name="pass" type="password" autocomplete="current-password" required>
+        </label>
+        <div class="notice notice--error" id="loginError" hidden></div>
+        <button class="btn btn--light btn--block" type="submit">Entrar</button>
+      </form>
+    </section>
+
+    <!-- Panel -->
+    <div id="app" hidden>
+      <nav class="tabs">
+        <button class="tab is-active" data-tab="agenda">Agenda</button>
+        <button class="tab" data-tab="blocks">Bloqueos</button>
+      </nav>
+
+      <!-- Agenda -->
+      <section id="tab-agenda">
+        <div class="daynav">
+          <button class="btn btn--ghost btn--sm" id="prevDay" aria-label="Día anterior">‹</button>
+          <div class="daynav__label">
+            <strong id="dayTitle"></strong>
+            <small id="daySub"></small>
+          </div>
+          <button class="btn btn--ghost btn--sm" id="nextDay" aria-label="Día siguiente">›</button>
+        </div>
+        <div class="stats" id="stats"></div>
+        <div id="agenda"></div>
+      </section>
+
+      <!-- Bloqueos -->
+      <section id="tab-blocks" hidden>
+        <div class="step">
+          <h2 class="step__title">Bloquear horario</h2>
+          <form class="form" id="blockForm">
+            <label class="field">
+              <span>Día</span>
+              <input name="date" type="date" required>
+            </label>
+            <label class="check">
+              <input name="allDay" type="checkbox"> Todo el día
+            </label>
+            <div class="row" id="blockTimes">
+              <label class="field"><span>Desde</span><input name="from" type="time" value="14:00"></label>
+              <label class="field"><span>Hasta</span><input name="to" type="time" value="15:00"></label>
+            </div>
+            <label class="field">
+              <span>Motivo <em>(opcional)</em></span>
+              <input name="reason" type="text" maxlength="80" placeholder="Ej: almuerzo, trámite, vacaciones">
+            </label>
+            <div class="notice notice--error" id="blockError" hidden></div>
+            <button class="btn btn--light btn--block" type="submit">Bloquear</button>
+          </form>
+        </div>
+        <h2 class="step__title">Próximos bloqueos</h2>
+        <div id="blocks"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

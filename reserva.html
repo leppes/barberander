@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mi reserva | Xander Home</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0e0e0e">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💈</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="index.html" class="logo">XANDER<span>HOME</span></a>
+      <a href="index.html" class="btn btn--ghost btn--sm">Inicio</a>
+    </div>
+  </header>
+
+  <main class="booking container">
+    <h1 class="booking__title">Mi reserva</h1>
+    <div class="step" id="box"><p class="muted">Cargando…</p></div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/reserva.js"></script>
+</body>
+</html>
