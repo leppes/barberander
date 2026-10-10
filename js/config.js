@@ -16,6 +16,12 @@ window.SITE = {
   commune: "San Ramón, Santiago",
   // Mientras no esté listo el sistema propio (etapa 2), reservar apunta a Setmore.
   bookingUrl: "https://reserva-aqui.setmore.com/",
+  // Supabase: al completar estos dos datos, "Reservar" pasa a usar el sistema propio.
+  // Ambos son públicos (la seguridad la ponen las reglas RLS de la base de datos).
+  supabaseUrl: "",
+  supabaseAnonKey: "",
+  // El panel pide solo "usuario"; por dentro se convierte en usuario@adminDomain
+  adminDomain: "xanderhome.local",
   timezone: "America/Santiago",
   // 0 = domingo ... 6 = sábado. null = cerrado.
   hours: {

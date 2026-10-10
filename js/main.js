@@ -15,10 +15,15 @@
   // Enlaces globales
   const waUrl = `https://wa.me/${S.whatsapp}?text=${encodeURIComponent(S.whatsappMessage)}`;
   $$("[data-wa]").forEach((a) => (a.href = waUrl));
+  // Con Supabase configurado se usa el sistema propio; si no, Setmore
+  const ownBooking = Boolean(S.supabaseUrl && S.supabaseAnonKey);
+  const bookUrl = ownBooking ? "reservar.html" : S.bookingUrl;
+  const linkTarget = ownBooking ? "" : ' target="_blank" rel="noopener"';
   $$("[data-book]").forEach((a) => {
-    a.href = S.bookingUrl;
-    if (/^https?:/.test(S.bookingUrl)) { a.target = "_blank"; a.rel = "noopener"; }
+    a.href = bookUrl;
+    if (!ownBooking) { a.target = "_blank"; a.rel = "noopener"; }
   });
+  const serviceUrl = (name) => (ownBooking ? `reservar.html?servicio=${encodeURIComponent(name)}` : S.bookingUrl);
 
   // Servicios
   $("#services").innerHTML = S.services.map((s) => `
@@ -27,7 +32,7 @@
         <h3>${s.name}${s.featured ? '<span class="service__badge">Popular</span>' : ""}</h3>
         <p class="service__meta"><strong>${clp.format(s.price)}</strong> · ${formatDuration(s.duration)}</p>
       </div>
-      <a class="btn btn--ghost btn--sm" href="${S.bookingUrl}" target="_blank" rel="noopener">Reservar</a>
+      <a class="btn btn--ghost btn--sm" href="${serviceUrl(s.name)}"${linkTarget}>Reservar</a>
     </article>`).join("");
 
   // Barbero

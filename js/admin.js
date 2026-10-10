@@ -1,0 +1,240 @@
+(async function () {
+  const S = window.SITE, db = window.db, U = window.U, { $, esc } = U;
+
+  const STATUS = {
+    confirmed: "Confirmada",
+    completed: "Llegó",
+    no_show: "No vino",
+    cancelled: "Cancelada",
+  };
+
+  let day = U.todayISO();
+
+  if (!db) {
+    $("#fatal").textContent = "Falta conectar Supabase en js/config.js.";
+    $("#fatal").hidden = false;
+    return;
+  }
+
+  // ---------- Sesión ----------
+  async function start() {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) return showLogin();
+
+    // ¿Esta cuenta está en la tabla admins?
+    const { data: admin } = await db.from("admins").select("user_id").eq("user_id", session.user.id).maybeSingle();
+    if (!admin) {
+      await db.auth.signOut();
+      return showLogin("Esta cuenta no tiene acceso al panel.");
+    }
+
+    $("#login").hidden = true;
+    $("#app").hidden = false;
+    $("#logoutBtn").hidden = false;
+    loadAgenda();
+  }
+
+  function showLogin(msg) {
+    $("#app").hidden = true;
+    $("#logoutBtn").hidden = true;
+    $("#login").hidden = false;
+    $("#loginError").hidden = !msg;
+    if (msg) $("#loginError").textContent = msg;
+  }
+
+  $("#loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const f = e.target.elements;
+    const user = f.user.value.trim().toLowerCase();
+    const email = user.includes("@") ? user : `${user}@${S.adminDomain}`;
+    const { error } = await db.auth.signInWithPassword({ email, password: f.pass.value });
+    if (error) return showLogin("Usuario o clave incorrectos.");
+    f.pass.value = "";
+    start();
+  });
+
+  $("#logoutBtn").addEventListener("click", async () => {
+    await db.auth.signOut();
+    showLogin();
+  });
+
+  // ---------- Pestañas ----------
+  document.querySelector(".tabs").addEventListener("click", (e) => {
+    const tab = e.target.closest(".tab");
+    if (!tab) return;
+    document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("is-active", t === tab));
+    $("#tab-agenda").hidden = tab.dataset.tab !== "agenda";
+    $("#tab-blocks").hidden = tab.dataset.tab !== "blocks";
+    if (tab.dataset.tab === "blocks") loadBlocks();
+    else loadAgenda();
+  });
+
+  // ---------- Agenda ----------
+  $("#prevDay").addEventListener("click", () => { day = U.addDays(day, -1); loadAgenda(); });
+  $("#nextDay").addEventListener("click", () => { day = U.addDays(day, 1); loadAgenda(); });
+
+  function dayName(iso) {
+    const today = U.todayISO();
+    if (iso === today) return "Hoy";
+    if (iso === U.addDays(today, 1)) return "Mañana";
+    if (iso === U.addDays(today, -1)) return "Ayer";
+    const s = U.weekday(U.dateFromISO(iso));
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  async function loadAgenda() {
+    $("#dayTitle").textContent = dayName(day);
+    $("#daySub").textContent = U.longDate(U.dateFromISO(day));
+    $("#agenda").innerHTML = '<p class="muted">Cargando…</p>';
+
+    const { data, error } = await db
+      .from("bookings")
+      .select("id, starts_at, customer_name, customer_phone, price, status, reminder_sent_at, cancel_token, services(name, duration_min)")
+      .gte("starts_at", U.localToISO(day, "00:00"))
+      .lt("starts_at", U.localToISO(U.addDays(day, 1), "00:00"))
+      .order("starts_at");
+
+    if (error) return ($("#agenda").innerHTML = '<p class="muted">No se pudo cargar la agenda.</p>');
+
+    const active = data.filter((b) => b.status !== "cancelled");
+    const total = active.filter((b) => b.status !== "no_show").reduce((sum, b) => sum + b.price, 0);
+    $("#stats").innerHTML = `
+      <div><strong>${active.length}</strong><span>${active.length === 1 ? "cliente" : "clientes"}</span></div>
+      <div><strong>${U.clp.format(total)}</strong><span>estimado</span></div>`;
+
+    $("#agenda").innerHTML = data.length
+      ? data.map(card).join("")
+      : '<div class="empty">Sin reservas este día 😎</div>';
+  }
+
+  function card(b) {
+    const past = new Date(b.starts_at) < new Date();
+    const phone = b.customer_phone.replace(/^\+56/, "").replace(/^(\d)(\d{4})(\d{4})$/, "$1 $2 $3");
+    return `
+      <article class="appt appt--${b.status}" data-id="${b.id}">
+        <div class="appt__time">${U.time(b.starts_at)}</div>
+        <div class="appt__body">
+          <div class="appt__head">
+            <strong>${esc(b.customer_name)}</strong>
+            <span class="badge badge--${b.status}">${STATUS[b.status]}</span>
+          </div>
+          <p class="muted">${esc(b.services.name)} · ${U.clp.format(b.price)}</p>
+          <a class="appt__phone" href="tel:${esc(b.customer_phone)}">${esc(phone)}</a>
+          ${b.status === "confirmed" ? `
+          <div class="appt__actions">
+            ${!past ? `<button class="btn btn--sm ${b.reminder_sent_at ? "btn--ghost" : "btn--wa"}" data-act="remind">
+              ${b.reminder_sent_at ? "✓ Recordado" : "Recordar por WhatsApp"}</button>` : ""}
+            <button class="btn btn--ghost btn--sm" data-act="completed">Llegó</button>
+            <button class="btn btn--ghost btn--sm" data-act="no_show">No vino</button>
+            ${!past ? '<button class="btn btn--ghost btn--sm btn--danger" data-act="cancelled">Cancelar</button>' : ""}
+          </div>` : `
+          <div class="appt__actions">
+            <button class="btn btn--ghost btn--sm" data-act="confirmed">Deshacer</button>
+          </div>`}
+        </div>
+      </article>`;
+  }
+
+  $("#agenda").addEventListener("click", async (e) => {
+    const btn = e.target.closest("[data-act]");
+    if (!btn) return;
+    const id = btn.closest(".appt").dataset.id;
+    const act = btn.dataset.act;
+
+    if (act === "remind") return remind(id);
+    if (act === "cancelled" && !confirm("¿Cancelar esta reserva? La hora queda libre para otro cliente.")) return;
+
+    const changes = { status: act, cancelled_at: act === "cancelled" ? new Date().toISOString() : null };
+    btn.disabled = true;
+    const { error } = await db.from("bookings").update(changes).eq("id", id);
+    if (error) {
+      alert(act === "confirmed" ? "No se pudo deshacer: puede que esa hora ya la haya tomado otro cliente." : "No se pudo guardar.");
+    }
+    loadAgenda();
+  });
+
+  async function remind(id) {
+    const { data: b } = await db
+      .from("bookings")
+      .select("starts_at, customer_name, customer_phone, cancel_token, services(name)")
+      .eq("id", id)
+      .single();
+    if (!b) return;
+
+    const bookingDay = new Intl.DateTimeFormat("en-CA", { timeZone: S.timezone }).format(new Date(b.starts_at));
+    const when = bookingDay === U.todayISO() ? "hoy"
+      : bookingDay === U.addDays(U.todayISO(), 1) ? "mañana"
+      : `el ${U.longDate(b.starts_at)}`;
+    const link = new URL(`reserva.html?t=${b.cancel_token}`, location.href).href;
+    const firstName = b.customer_name.split(" ")[0];
+    const text =
+      `Hola ${firstName} 👋 te recuerdo tu hora ${when} a las ${U.time(b.starts_at)} en ${S.name} (${b.services.name}).\n` +
+      `📍 ${S.address}, ${S.commune}\n` +
+      `Si no puedes venir, cancela aquí: ${link}`;
+
+    // Abrimos WhatsApp primero (los celulares bloquean ventanas abiertas después de esperar)
+    window.open(U.waLink(text, b.customer_phone), "_blank");
+    await db.from("bookings").update({ reminder_sent_at: new Date().toISOString() }).eq("id", id);
+    loadAgenda();
+  }
+
+  // ---------- Bloqueos ----------
+  const blockForm = $("#blockForm");
+  blockForm.elements.date.value = U.todayISO();
+  blockForm.elements.allDay.addEventListener("change", (e) => ($("#blockTimes").hidden = e.target.checked));
+
+  blockForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const f = blockForm.elements;
+    const err = (msg) => { $("#blockError").textContent = msg; $("#blockError").hidden = false; };
+    $("#blockError").hidden = true;
+
+    const date = f.date.value;
+    const starts_at = U.localToISO(date, f.allDay.checked ? "00:00" : f.from.value);
+    const ends_at = f.allDay.checked ? U.localToISO(U.addDays(date, 1), "00:00") : U.localToISO(date, f.to.value);
+    if (new Date(ends_at) <= new Date(starts_at)) return err("La hora 'hasta' debe ser después de 'desde'.");
+
+    const { error } = await db.from("time_off").insert({
+      barber_id: 1,
+      starts_at,
+      ends_at,
+      reason: f.reason.value.trim() || null,
+    });
+    if (error) return err("No se pudo guardar el bloqueo.");
+    f.reason.value = "";
+    loadBlocks();
+  });
+
+  async function loadBlocks() {
+    $("#blocks").innerHTML = '<p class="muted">Cargando…</p>';
+    const { data, error } = await db
+      .from("time_off")
+      .select("id, starts_at, ends_at, reason")
+      .gte("ends_at", new Date().toISOString())
+      .order("starts_at");
+    if (error) return ($("#blocks").innerHTML = '<p class="muted">No se pudieron cargar.</p>');
+
+    $("#blocks").innerHTML = data.length
+      ? data.map((b) => {
+          const allDay = U.time(b.starts_at) === "00:00" && U.time(b.ends_at) === "00:00";
+          return `
+          <div class="block" data-id="${b.id}">
+            <div>
+              <strong>${U.longDate(b.starts_at)}</strong>
+              <span class="muted">${allDay ? "Todo el día" : `${U.time(b.starts_at)} – ${U.time(b.ends_at)}`}${b.reason ? ` · ${esc(b.reason)}` : ""}</span>
+            </div>
+            <button class="btn btn--ghost btn--sm btn--danger" data-del>Quitar</button>
+          </div>`;
+        }).join("")
+      : '<div class="empty">No hay bloqueos próximos.</div>';
+  }
+
+  $("#blocks").addEventListener("click", async (e) => {
+    if (!e.target.closest("[data-del]")) return;
+    const id = e.target.closest(".block").dataset.id;
+    await db.from("time_off").delete().eq("id", id);
+    loadBlocks();
+  });
+
+  start();
+})();
