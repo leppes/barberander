@@ -15,8 +15,8 @@
   // Enlaces globales
   const waUrl = `https://wa.me/${S.whatsapp}?text=${encodeURIComponent(S.whatsappMessage)}`;
   $$("[data-wa]").forEach((a) => (a.href = waUrl));
-  // Con Supabase configurado se usa el sistema propio; si no, Setmore
-  const ownBooking = Boolean(S.supabaseUrl && S.supabaseAnonKey);
+  // Con el interruptor encendido y Supabase configurado se usa el sistema propio; si no, Setmore
+  const ownBooking = Boolean(S.bookingLive && S.supabaseUrl && S.supabaseAnonKey);
   const bookUrl = ownBooking ? "reservar.html" : S.bookingUrl;
   const linkTarget = ownBooking ? "" : ' target="_blank" rel="noopener"';
   $$("[data-book]").forEach((a) => {
