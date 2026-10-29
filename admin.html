@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel | Xander Home</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0e0e0e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Panel">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💈</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link id="theme-fonts" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/boot.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <span class="logo" data-logo="panel">XANDER<span>PANEL</span></span>
+      <div class="header__actions">
+        <a class="btn btn--ghost btn--sm" id="viewSite" href="index.html" target="_blank" rel="noopener" hidden>Ver página ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="booking admin container">
+    <div class="notice notice--error" id="fatal" hidden></div>
+
+    <!-- Login -->
+    <section class="step" id="login" hidden>
+      <h1 class="booking__title">Hola 👋</h1>
+      <p class="booking__lead">Entra para ver tu agenda.</p>
+      <form class="form" id="loginForm">
+        <label class="field">
+          <span>Usuario</span>
+          <input name="user" type="text" autocomplete="username" autocapitalize="none" required placeholder="anderson">
+        </label>
+        <label class="field">
+          <span>Clave</span>
+          <input name="pass" type="password" autocomplete="current-password" required>
+        </label>
+        <div class="notice notice--error" id="loginError" hidden></div>
+        <button class="btn btn--light btn--block" type="submit">Entrar</button>
+      </form>
+    </section>
+
+    <!-- Panel -->
+    <div id="app" hidden>
+      <nav class="tabs" aria-label="Secciones del panel">
+        <button class="tab" data-tab="agenda">Agenda</button>
+        <button class="tab" data-tab="blocks">Bloqueos</button>
+        <button class="tab" data-tab="hours">Horario</button>
+        <button class="tab" data-tab="services">Servicios</button>
+        <button class="tab" data-tab="page">Página</button>
+        <button class="tab" data-tab="design">Diseño</button>
+        <button class="tab" data-tab="account">Cuenta</button>
+      </nav>
+
+      <!-- Agenda -->
+      <section data-panel="agenda" hidden>
+        <div class="daynav">
+          <button class="btn btn--ghost btn--sm" id="prevDay" aria-label="Día anterior">‹</button>
+          <label class="daynav__label" title="Elegir fecha">
+            <strong id="dayTitle"></strong>
+            <small id="daySub"></small>
+            <input type="date" class="daynav__picker" id="dayPicker" aria-label="Elegir fecha">
+          </label>
+          <button class="btn btn--ghost btn--sm" id="nextDay" aria-label="Día siguiente">›</button>
+        </div>
+        <div class="agenda-tools">
+          <button class="btn btn--ghost btn--sm" id="todayBtn" type="button" hidden>Volver a hoy</button>
+          <button class="btn btn--light btn--sm" id="addBooking" type="button">+ Agregar reserva</button>
+        </div>
+        <div class="stats" id="stats"></div>
+        <div id="agenda"></div>
+      </section>
+
+      <!-- Bloqueos -->
+      <section data-panel="blocks" hidden>
+        <div class="step">
+          <h2 class="step__title">Bloquear horario</h2>
+          <p class="step__hint">Las horas bloqueadas desaparecen de la página de reservas.</p>
+          <form class="form" id="blockForm">
+            <label class="field">
+              <span>Día</span>
+              <input name="date" type="date" required>
+            </label>
+            <label class="switch">
+              <input name="allDay" type="checkbox"><span class="switch__track"></span><span>Todo el día</span>
+            </label>
+            <div class="row" id="blockTimes">
+              <label class="field"><span>Desde</span><input name="from" type="time" value="14:00"></label>
+              <label class="field"><span>Hasta</span><input name="to" type="time" value="15:00"></label>
+            </div>
+            <label class="field">
+              <span>Motivo <em>(opcional)</em></span>
+              <input name="reason" type="text" maxlength="80" placeholder="Ej: almuerzo, trámite, vacaciones">
+            </label>
+            <div class="notice notice--error" id="blockError" hidden></div>
+            <button class="btn btn--light btn--block" type="submit">Bloquear</button>
+          </form>
+        </div>
+        <h2 class="step__title">Próximos bloqueos</h2>
+        <div id="blocks"></div>
+      </section>
+
+      <!-- Horario y reglas -->
+      <section data-panel="hours" hidden>
+        <div class="step">
+          <h2 class="step__title">Horario de atención</h2>
+          <p class="step__hint">Marca los días que atiendes. Si tienes pausa de almuerzo, agrega un segundo tramo.</p>
+          <div id="hoursEditor"></div>
+          <div class="btn-row">
+            <button class="btn btn--ghost btn--sm" id="copyMonday" type="button">Copiar el lunes a los demás días abiertos</button>
+          </div>
+          <button class="btn btn--light btn--block" id="saveHours" type="button">Guardar horario</button>
+        </div>
+
+        <div class="step">
+          <h2 class="step__title">Así verán las horas tus clientes</h2>
+          <p class="step__hint">Ejemplo con la agenda vacía. Se actualiza mientras cambias el horario.</p>
+          <div class="row">
+            <label class="field"><span>Servicio</span><select id="pvService"></select></label>
+            <label class="field"><span>Día</span><select id="pvDay"></select></label>
+          </div>
+          <div class="slots" id="pvSlots"></div>
+          <p class="step__hint" id="pvNote" style="margin-top:12px"></p>
+        </div>
+
+        <div class="step">
+          <h2 class="step__title">Reglas de reserva</h2>
+          <form class="form" id="rulesForm"></form>
+        </div>
+      </section>
+
+      <!-- Servicios -->
+      <section data-panel="services" hidden>
+        <div class="panel-head">
+          <h2>Servicios y precios</h2>
+          <button class="btn btn--light btn--sm" id="addService" type="button">+ Agregar</button>
+        </div>
+        <p class="step__hint" style="margin-top:0">Los cambios se guardan solos. Usa las flechas para cambiar el orden en la página.</p>
+        <div id="servicesEditor"></div>
+      </section>
+
+      <!-- Contenido de la página -->
+      <section data-panel="page" hidden>
+        <div id="pageForm"></div>
+      </section>
+
+      <!-- Diseño -->
+      <section data-panel="design" hidden>
+        <div id="designForm"></div>
+      </section>
+
+      <!-- Cuenta -->
+      <section data-panel="account" hidden>
+        <div class="step">
+          <h2 class="step__title">Cambiar clave</h2>
+          <form class="form" id="passForm">
+            <label class="field"><span>Clave nueva</span><input name="p1" type="password" autocomplete="new-password" minlength="8" required></label>
+            <label class="field"><span>Repite la clave</span><input name="p2" type="password" autocomplete="new-password" minlength="8" required></label>
+            <div class="notice notice--error" id="passError" hidden></div>
+            <button class="btn btn--light btn--block" type="submit">Cambiar clave</button>
+          </form>
+        </div>
+        <div class="step">
+          <h2 class="step__title">Usar el panel como app</h2>
+          <p class="muted" style="margin:0">En el celular abre este panel y en el menú del navegador elige <strong>"Agregar a pantalla de inicio"</strong> (en iPhone está en el botón Compartir). Queda como un ícono más y se abre sin barra del navegador.</p>
+        </div>
+        <div class="step">
+          <h2 class="step__title">Sesión</h2>
+          <p class="muted">Conectado como <strong id="whoami"></strong></p>
+          <button class="btn btn--ghost btn--block" id="logoutBtn" type="button">Cerrar sesión</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Nueva reserva manual -->
+  <dialog class="sheet" id="bookingDialog">
+    <form class="sheet__body form" id="bookingForm">
+      <h2 class="step__title">Nueva reserva</h2>
+      <label class="field"><span>Cliente</span><input name="name" required minlength="2" maxlength="80" placeholder="Nombre"></label>
+      <label class="field">
+        <span>Teléfono <em>(opcional)</em></span>
+        <div class="field__prefix"><b>+56</b><input name="phone" type="tel" inputmode="numeric" placeholder="9 1234 5678"></div>
+      </label>
+      <label class="field"><span>Servicio</span><select name="service" required></select></label>
+      <div class="row">
+        <label class="field"><span>Día</span><input name="date" type="date" required></label>
+        <label class="field"><span>Hora</span><input name="time" type="time" step="300" required></label>
+      </div>
+      <div class="notice notice--error" id="bookingError" hidden></div>
+      <div class="row">
+        <button class="btn btn--ghost" type="button" id="bookingCancel">Cancelar</button>
+        <button class="btn btn--light" type="submit" id="bookingSave">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Barra para guardar cambios de Página y Diseño -->
+  <div class="savebar" id="savebar" hidden>
+    <span class="savebar__text">Tienes cambios sin publicar</span>
+    <button class="btn btn--ghost btn--sm" id="sbDiscard" type="button">Descartar</button>
+    <button class="btn btn--ghost btn--sm" id="sbPreview" type="button">Vista previa</button>
+    <button class="btn btn--light btn--sm" id="sbSave" type="button">Publicar</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/site.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/admin-ajustes.js"></script>
+  <script src="js/admin-pagina.js"></script>
+</body>
+</html>

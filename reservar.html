@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reservar hora | Xander Home</title>
+  <meta name="description" content="Reserva tu hora online.">
+  <meta name="theme-color" content="#0e0e0e">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💈</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link id="theme-fonts" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/boot.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="index.html" class="logo" data-logo>XANDER<span>HOME</span></a>
+      <a href="index.html" class="btn btn--ghost btn--sm">← Volver</a>
+    </div>
+  </header>
+
+  <main class="booking container">
+    <h1 class="booking__title" data-text="booking.title">Reserva tu hora</h1>
+    <p class="booking__lead" data-text="booking.lead">Elige servicio, día y hora. Te toma menos de un minuto.</p>
+
+    <div class="notice notice--error" id="fatal" hidden></div>
+
+    <div id="flow">
+      <!-- Paso 1 -->
+      <section class="step" id="step1">
+        <h2 class="step__title"><span>1</span> Servicio</h2>
+        <div class="choices" id="services"><p class="muted">Cargando servicios…</p></div>
+      </section>
+
+      <!-- Paso 2 -->
+      <section class="step" id="step2" hidden>
+        <h2 class="step__title"><span>2</span> Día</h2>
+        <div class="days" id="days"></div>
+      </section>
+
+      <!-- Paso 3 -->
+      <section class="step" id="step3" hidden>
+        <h2 class="step__title"><span>3</span> Hora</h2>
+        <p class="muted" id="dayLabel"></p>
+        <div class="slots" id="slots"></div>
+      </section>
+
+      <!-- Paso 4 -->
+      <section class="step" id="step4" hidden>
+        <h2 class="step__title"><span>4</span> Tus datos</h2>
+        <div class="summary" id="summary"></div>
+        <form class="form" id="form" novalidate>
+          <label class="field">
+            <span>Nombre</span>
+            <input name="name" type="text" autocomplete="name" required minlength="2" maxlength="80" placeholder="Ej: Juan Pérez">
+          </label>
+          <label class="field">
+            <span>Teléfono (WhatsApp)</span>
+            <div class="field__prefix">
+              <b>+56</b>
+              <input name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" required placeholder="9 1234 5678">
+            </div>
+          </label>
+          <label class="field">
+            <span>Correo <em>(opcional)</em></span>
+            <input name="email" type="email" autocomplete="email" placeholder="tu@correo.com">
+          </label>
+          <div class="notice notice--error" id="formError" hidden></div>
+          <button class="btn btn--light btn--block" type="submit" id="submitBtn">Confirmar reserva</button>
+        </form>
+      </section>
+    </div>
+
+    <!-- Confirmación -->
+    <section class="step done" id="done" hidden>
+      <div class="done__icon">✓</div>
+      <h2 data-text="booking.doneTitle">¡Hora reservada!</h2>
+      <div class="summary" id="doneSummary"></div>
+      <div class="done__actions">
+        <a class="btn btn--light btn--block" id="calLink" target="_blank" rel="noopener">📅 Agregar a mi calendario</a>
+        <a class="btn btn--ghost btn--block" id="waLink" target="_blank" rel="noopener">Avisar por WhatsApp</a>
+      </div>
+      <div class="notice">
+        <strong>Guarda este link</strong> para ver o cancelar tu hora:
+        <div class="copy">
+          <input id="manageUrl" readonly>
+          <button class="btn btn--ghost btn--sm" id="copyBtn" type="button">Copiar</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/site.js"></script>
+  <script src="js/reservar.js"></script>
+</body>
+</html>
