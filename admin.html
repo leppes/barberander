@@ -53,6 +53,7 @@
         <button class="tab" data-tab="blocks">Bloqueos</button>
         <button class="tab" data-tab="hours">Horario</button>
         <button class="tab" data-tab="services">Servicios</button>
+        <button class="tab" data-tab="notify">Avisos</button>
         <button class="tab" data-tab="page">Página</button>
         <button class="tab" data-tab="design">Diseño</button>
         <button class="tab" data-tab="account">Cuenta</button>
@@ -145,6 +146,42 @@
         <div id="servicesEditor"></div>
       </section>
 
+      <!-- Avisos por correo -->
+      <section data-panel="notify" hidden>
+        <div class="step">
+          <h2 class="step__title">Correo que envía los avisos</h2>
+          <div id="mailStatus" class="notice">Revisando…</div>
+          <div class="btn-row">
+            <button class="btn btn--ghost btn--sm" id="testMail" type="button">Enviarme un correo de prueba</button>
+          </div>
+        </div>
+
+        <div class="step">
+          <h2 class="step__title">Qué avisos se mandan</h2>
+          <form class="form" id="notifyForm">
+            <label class="switch"><input type="checkbox" name="email_confirm"><span class="switch__track"></span><span>Confirmación al cliente cuando reserva</span></label>
+            <label class="switch"><input type="checkbox" name="email_reminder"><span class="switch__track"></span><span>Recordatorio al cliente antes de su hora</span></label>
+            <label class="field"><span>¿Cuánto antes llega el recordatorio?</span>
+              <select name="reminder_hours">
+                <option value="1">1 hora antes</option>
+                <option value="2">2 horas antes</option>
+                <option value="3">3 horas antes</option>
+                <option value="6">6 horas antes</option>
+                <option value="12">12 horas antes</option>
+                <option value="24">1 día antes</option>
+              </select>
+            </label>
+            <label class="switch"><input type="checkbox" name="email_barber"><span class="switch__track"></span><span>Avisarme a mí de cada reserva nueva y cancelación</span></label>
+            <label class="switch"><input type="checkbox" name="require_email"><span class="switch__track"></span><span>Pedir el correo obligatorio al reservar</span></label>
+            <p class="step__hint" style="margin:0">Si el cliente no deja correo, no le pueden llegar la confirmación ni el recordatorio.</p>
+            <label class="field"><span>Dirección de la página <em>(para los links de los correos)</em></span>
+              <input name="site_url" type="url" inputmode="url" placeholder="https://usuario.github.io/barberia/">
+            </label>
+            <button class="btn btn--light btn--block" type="submit">Guardar avisos</button>
+          </form>
+        </div>
+      </section>
+
       <!-- Contenido de la página -->
       <section data-panel="page" hidden>
         <div id="pageForm"></div>
@@ -187,6 +224,10 @@
       <label class="field">
         <span>Teléfono <em>(opcional)</em></span>
         <div class="field__prefix"><b>+56</b><input name="phone" type="tel" inputmode="numeric" placeholder="9 1234 5678"></div>
+      </label>
+      <label class="field">
+        <span>Correo <em>(opcional: le llega confirmación y recordatorio)</em></span>
+        <input name="email" type="email" inputmode="email" placeholder="cliente@correo.com">
       </label>
       <label class="field"><span>Servicio</span><select name="service" required></select></label>
       <div class="row">

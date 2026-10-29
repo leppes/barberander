@@ -64,8 +64,8 @@
             </div>
           </label>
           <label class="field">
-            <span>Correo <em>(opcional)</em></span>
-            <input name="email" type="email" autocomplete="email" placeholder="tu@correo.com">
+            <span>Correo <em id="emailHint">(opcional)</em></span>
+            <input name="email" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com">
           </label>
           <div class="notice notice--error" id="formError" hidden></div>
           <button class="btn btn--light btn--block" type="submit" id="submitBtn">Confirmar reserva</button>
@@ -77,6 +77,7 @@
     <section class="step done" id="done" hidden>
       <div class="done__icon">✓</div>
       <h2 data-text="booking.doneTitle">¡Hora reservada!</h2>
+      <p class="muted" id="doneEmail" hidden></p>
       <div class="summary" id="doneSummary"></div>
       <div class="done__actions">
         <a class="btn btn--light btn--block" id="calLink" target="_blank" rel="noopener">📅 Agregar a mi calendario</a>
