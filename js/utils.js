@@ -82,6 +82,23 @@
       return `https://calendar.google.com/calendar/render?${p}`;
     },
 
+    // Archivo de calendario (.ics) con alarma: en iPhone se agrega directo al Calendario
+    icsUrl({ title, start, minutes, location, alarmHours, link }) {
+      const f = (d) => d.toISOString().replace(/[-:]|\.\d{3}/g, "");
+      const e = (s) => String(s || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+      const s = new Date(start), end = new Date(s.getTime() + minutes * 60000);
+      const lines = [
+        "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Xander Home//Reservas//ES", "METHOD:PUBLISH", "BEGIN:VEVENT",
+        `UID:${f(s)}-${Math.random().toString(36).slice(2)}@xanderhome`, `DTSTAMP:${f(new Date())}`,
+        `DTSTART:${f(s)}`, `DTEND:${f(end)}`, `SUMMARY:${e(title)}`, `LOCATION:${e(location)}`,
+        `DESCRIPTION:${e(link ? `Ver o cancelar tu hora: ${link}` : "")}`,
+        "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${e(title)}`, `TRIGGER:-PT${alarmHours || 2}H`, "END:VALARM",
+        "END:VEVENT", "END:VCALENDAR",
+      ];
+      return URL.createObjectURL(new Blob([lines.join("\r\n")], { type: "text/calendar;charset=utf-8" }));
+    },
+    isApple: () => /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent),
+
     // Solo deja pasar links https o fotos de la carpeta img/ (evita código malicioso en estilos)
     safeUrl(url) {
       if (typeof url !== "string") return "";

@@ -318,6 +318,75 @@
   });
 
   // =====================================================================
+  // Avisos por correo
+  // =====================================================================
+  const NOTIFY_SWITCHES = ["email_confirm", "email_reminder", "email_barber", "require_email"];
+
+  Admin.tabs.notify = () => {
+    const s = Site.settings, f = $("#notifyForm").elements;
+    for (const k of NOTIFY_SWITCHES) f[k].checked = s[k] !== false;
+    f.reminder_hours.value = String(s.reminder_hours || 2);
+    if (![...f.reminder_hours.options].some((o) => o.value === f.reminder_hours.value)) {
+      f.reminder_hours.add(new Option(`${s.reminder_hours} horas antes`, String(s.reminder_hours)));
+      f.reminder_hours.value = String(s.reminder_hours);
+    }
+    f.site_url.value = s.site_url || "";
+    checkMail();
+  };
+
+  // ¿Ya están puestos los datos del Gmail en Supabase?
+  async function checkMail() {
+    const box = $("#mailStatus");
+    box.className = "notice";
+    box.textContent = "Revisando…";
+    const { data, error } = await db.functions.invoke("avisos", { body: { status: true } });
+    if (error || !data) {
+      box.className = "notice notice--error";
+      box.textContent = "No se pudo revisar el servicio de correos. Intenta de nuevo en un rato.";
+      return;
+    }
+    if (data.configured) {
+      box.innerHTML = `✓ Los correos salen desde <strong>${esc(data.sender)}</strong>.`;
+    } else {
+      box.className = "notice notice--error";
+      box.innerHTML = `Todavía falta conectar el Gmail. Hay que agregar en Supabase
+        (<em>Edge Functions → Secrets</em>) estos dos secretos:<br>
+        <code>GMAIL_USER</code> = el correo del negocio<br>
+        <code>GMAIL_APP_PASSWORD</code> = la contraseña de aplicación de Google (16 letras)`;
+    }
+    $("#testMail").disabled = !data.configured;
+  }
+
+  $("#testMail").addEventListener("click", (e) => {
+    Admin.busy(e.currentTarget, async () => {
+      const { data, error } = await db.functions.invoke("avisos", { body: { test: true } });
+      if (error || !data?.ok) throw new Error(`No se pudo enviar: ${data?.error || "revisa la contraseña de aplicación del Gmail."}`);
+      Admin.toast("Correo de prueba enviado ✓ Revisa tu bandeja (y spam).");
+    }, "Enviando…");
+  });
+
+  $("#notifyForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const f = e.target.elements;
+    const changes = { reminder_hours: Number(f.reminder_hours.value) };
+    for (const k of NOTIFY_SWITCHES) changes[k] = f[k].checked;
+
+    let url = f.site_url.value.trim();
+    if (url && !/^https:\/\//i.test(url)) return Admin.toast("La dirección debe empezar con https://", "error");
+    if (url && !url.endsWith("/")) url = url.replace(/\/[^/]*\.html$/, "/").replace(/([^/])$/, "$1/");
+    changes.site_url = url || null;
+
+    Admin.busy(e.submitter, async () => {
+      const { data, error } = await db.from("settings").update(changes).eq("id", true).select("id");
+      if (error || !data?.length) throw new Error("No se pudieron guardar los avisos.");
+      Site.settings = { ...Site.settings, ...changes };
+      Site.saveCache();
+      f.site_url.value = changes.site_url || "";
+      Admin.toast("Avisos guardados ✓");
+    });
+  });
+
+  // =====================================================================
   // Cuenta
   // =====================================================================
   $("#passForm").addEventListener("submit", (e) => {

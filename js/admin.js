@@ -2,7 +2,7 @@
 // Las otras pestañas están en admin-ajustes.js y admin-pagina.js
 (function () {
   const C = window.SITE_CONFIG, Site = window.Site, db = window.db, U = window.U, { $, $$, esc } = U;
-  const TABS = ["agenda", "blocks", "hours", "services", "page", "design", "account"];
+  const TABS = ["agenda", "blocks", "hours", "services", "notify", "page", "design", "account"];
   const STATUS = { confirmed: "Confirmada", completed: "Llegó", no_show: "No vino", cancelled: "Cancelada" };
 
   // Lo que comparten los tres archivos del panel
@@ -59,6 +59,14 @@
     const { data: barbers } = await db.from("barbers").select("id").order("id").limit(1);
     Admin.barberId = barbers?.[0]?.id ?? 1;
     Site.bindTexts();
+
+    // Guardamos solos la dirección de la página para los links de los correos
+    // (solo desde la página publicada, no desde una prueba en el computador)
+    if (!Site.settings.site_url && location.protocol === "https:") {
+      const url = new URL(".", location.href).href;
+      const { error } = await db.from("settings").update({ site_url: url }).eq("id", true);
+      if (!error) Site.settings.site_url = url;
+    }
     $("#whoami").textContent = session.user.email.replace(`@${C.adminDomain}`, "");
 
     $("#login").hidden = true;
@@ -191,6 +199,8 @@
     if (act === "cancelled" && !confirm("¿Cancelar esta reserva? La hora queda libre para otro cliente.")) return;
 
     const changes = { status: act, cancelled_at: act === "cancelled" ? new Date().toISOString() : null };
+    // Si cancela Anderson, no hace falta avisarle a él mismo por correo
+    if (act === "cancelled") changes.cancel_notified_at = new Date().toISOString();
     btn.disabled = true;
     const { error } = await db.from("bookings").update(changes).eq("id", id);
     if (error) {
@@ -249,9 +259,11 @@
     const err = (msg) => { $("#bookingError").textContent = msg; $("#bookingError").hidden = false; };
     const name = f.name.value.trim();
     const phone = f.phone.value.replace(/\D/g, "");
+    const email = f.email.value.trim().toLowerCase();
     const svc = (Site.services || []).find((s) => String(s.id) === f.service.value);
     if (name.length < 2) return err("Escribe el nombre del cliente.");
     if (phone && !/^9\d{8}$/.test(phone)) return err("El teléfono debe tener 9 dígitos y empezar con 9.");
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return err("Revisa el correo.");
     if (!svc || !f.date.value || !f.time.value) return err("Elige servicio, día y hora.");
 
     const start = new Date(U.localToISO(f.date.value, f.time.value));
@@ -267,11 +279,14 @@
         block_until: block.toISOString(),
         customer_name: name,
         customer_phone: phone ? `+56${phone}` : null,
+        customer_email: email || null,
         price: svc.price,
+        barber_notified_at: new Date().toISOString(), // la agregó él: no se le avisa a sí mismo
       });
       if (error) {
         return err(error.code === "23P01" ? "Ya hay una reserva que se cruza con esa hora." : "No se pudo guardar la reserva.");
       }
+      if (email) db.functions.invoke("avisos", { body: {} }).catch(() => {}); // confirmación al cliente
       dialog.close();
       day = f.date.value;
       loadAgenda();

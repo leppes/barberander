@@ -24,6 +24,11 @@
   document.title = `Reservar hora | ${Site.content.brand.name}`;
   if (Site.settings.booking_enabled === false) return fatal("Las reservas online están pausadas por ahora.");
 
+  // ¿Pedimos el correo obligatorio? (se cambia en el panel, pestaña Avisos)
+  const needEmail = Site.settings.require_email !== false;
+  $("#emailHint").textContent = needEmail ? "(te llega la confirmación y el recordatorio)" : "(opcional)";
+  $("#form").elements.email.required = needEmail;
+
   // ---------- Paso 1: servicios ----------
   const { data: services, error } = await db
     .from("services")
@@ -131,6 +136,7 @@
     $("#formError").hidden = true;
     if (name.length < 2) return err("Escribe tu nombre.");
     if (!/^9\d{8}$/.test(phone)) return err("El teléfono debe tener 9 dígitos y empezar con 9. Ej: 9 1234 5678");
+    if (needEmail && !email) return err("Escribe tu correo para enviarte la confirmación y el recordatorio.");
     if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return err("Revisa tu correo.");
 
     const btn = $("#submitBtn");
@@ -154,21 +160,35 @@
       if (/disponible/i.test(error.message || "")) selectDate(state.date, $(`.day[data-date="${state.date}"]`));
       return;
     }
-    showDone(data[0], name);
+    // Que los correos salgan al instante (si falla, la tarea de cada 5 minutos los manda igual)
+    db.functions.invoke("avisos", { body: {} }).catch(() => {});
+    showDone(data[0], name, email);
   });
 
   // ---------- Confirmación ----------
-  function showDone(b, name) {
+  function showDone(b, name, email) {
     const c = Site.content.contact || {};
     const barber = String(b.barber_name || "").split(" ")[0];
     const manageUrl = new URL(`reserva.html?t=${b.cancel_token}`, location.href).href;
+    const title = `${b.service_name} · ${Site.content.brand.name}`;
+    const location_ = [c.address, c.commune].filter(Boolean).join(", ");
 
     $("#flow").hidden = true;
     $("#doneSummary").innerHTML = summaryHTML({ name: b.service_name, price: b.price }, b.starts_at);
-    $("#calLink").href = U.calendarLink(
-      `${b.service_name} · ${Site.content.brand.name}`, b.starts_at, state.service.duration_min,
-      [c.address, c.commune].filter(Boolean).join(", ")
-    );
+    $("#doneEmail").hidden = !email;
+    $("#doneEmail").textContent = email ? `Te enviamos la confirmación a ${email}. Revisa también la carpeta de spam.` : "";
+
+    // iPhone: archivo de calendario con alarma. Android: Google Calendar.
+    if (U.isApple()) {
+      $("#calLink").href = U.icsUrl({
+        title, start: b.starts_at, minutes: state.service.duration_min, location: location_,
+        alarmHours: Site.settings.reminder_hours || 2, link: manageUrl,
+      });
+      $("#calLink").download = "cita.ics";
+      $("#calLink").removeAttribute("target");
+    } else {
+      $("#calLink").href = U.calendarLink(title, b.starts_at, state.service.duration_min, location_);
+    }
     $("#waLink").textContent = `Avisar a ${barber} por WhatsApp`;
     $("#waLink").href = Site.wa(
       `Hola ${barber} 👋 soy ${name}. Reservé ${b.service_name} el ${U.longDate(b.starts_at)} a las ${U.time(b.starts_at)}.`

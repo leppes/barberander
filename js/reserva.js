@@ -69,6 +69,7 @@
       btn.textContent = "Cancelar mi hora";
       return;
     }
+    db.functions.invoke("avisos", { body: {} }).catch(() => {}); // avisa a Anderson al instante
     load();
   }
 

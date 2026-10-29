@@ -105,5 +105,11 @@ window.SITE_DEFAULTS = {
     min_notice_min: 60,
     cancel_limit_min: 180,
     max_active_per_phone: 2,
+    email_confirm: true,
+    email_reminder: true,
+    reminder_hours: 2,
+    email_barber: true,
+    require_email: true,
+    site_url: null,
   },
 };
